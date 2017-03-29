@@ -34,7 +34,7 @@
     <string name="add_new_stock">Add new Stock by writing symbol inside dialog will appear after clicking on it</string>
     <string name="title_activity_detail">Price over time</string>
     <string name="no_match">stock quote doesn\'t exist</string>
-    <string name="error_no_stocks_widget">No stocks added!</string>
+
     <!-- Content description to provide accessibility-->
     <string name="add_new_stock_cd">Add new stock</string>
     <string name="detail_activity_cd">Stock details of %s</string>
@@ -45,10 +45,5 @@
     <string name="display_mode_change_cd">Display mode changed to %s</string>
     <string name="stock_increment_cd">Stock value increased by %s</string>
     <string name="stock_decrement_cd">Stock value decreased by %s</string>
-    <string name="days_fragment_title">5 DAYS</string>
-    <string name="weeks_fragment_title">5 WEEKS</string>
-    <string name="months_fragment_title">5 MONTHS</string>
-    <string name="try_again">Try again</string>
-    <string name="widget_cd">Stock hawk widget</string>
 
 </resources>

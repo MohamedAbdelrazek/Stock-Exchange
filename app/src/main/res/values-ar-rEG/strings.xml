@@ -11,6 +11,7 @@
     <string name="toast_no_connectivity">سوف يتم تحديث الاسهم عند عودة الانترت</string>
     <string name="title_activity_detail">سعر السهم مع مرور الوقت</string>
     <string name="no_match">هذا السهم غير موجود!</string>
+    <string name="empty_stock_list">معلومات السهم غير متوفرة</string>
 
     <!-- Content description to provide accessibility-->
     <string name="add_new_stock_cd">أضافه سهم جديد</string>

@@ -4,4 +4,10 @@
     <dimen name="min_widget_width">250dp</dimen>
     <dimen name="min_widget_item_height">40dp</dimen>
     <dimen name="min_widget_list_height">180dp</dimen>
+
+    <dimen name="widget_min_width">216dp</dimen>
+    <dimen name="widget_min_height">180dp</dimen>
+    <dimen name="widget_min_resize_width">216dp</dimen>
+    <dimen name="widget_min_resize_height">110dp</dimen>
+    <dimen name="widget_margin">8dp</dimen>
 </resources>

@@ -2,12 +2,12 @@ package com.udacity.stockhawk.ui;
 
 import android.database.Cursor;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
@@ -22,7 +22,6 @@ import com.udacity.stockhawk.LineChartModel;
 import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.data.Contract;
 
-
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -36,26 +35,28 @@ import butterknife.ButterKnife;
 /**
  * Created by mostafa_anter on 12/15/16.
  */
-public class StockDetailsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
+public class StockDetailsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    @BindView(R.id.chart)LineChart mChart;
+    @BindView(R.id.chart)
+    LineChart mChart;
     private static final int STOCK_LOADER = 0;
-
+    private Uri stockUri;
 
     private boolean getDataOnce = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
         ButterKnife.bind(this);
-
+        stockUri = getIntent().getData();
         getSupportLoaderManager().initLoader(STOCK_LOADER, null, this);
 
     }
 
     private void initChart(List<LineChartModel> dataObjects) {
         mChart.setViewPortOffsets(0, 0, 0, 0);
-       // mChart.setBackgroundColor(Color.rgb(104, 241, 175));
+        // mChart.setBackgroundColor(Color.rgb(104, 241, 175));
 
         // no description text
         mChart.getDescription().setEnabled(false);
@@ -88,7 +89,6 @@ public class StockDetailsActivity extends AppCompatActivity implements LoaderMan
 
         mChart.animateXY(2000, 2000);
 
-        // dont forget to refresh the drawing
         mChart.invalidate();
 
     }
@@ -106,7 +106,7 @@ public class StockDetailsActivity extends AppCompatActivity implements LoaderMan
 
         if (mChart.getData() != null &&
                 mChart.getData().getDataSetCount() > 0) {
-            set1 = (LineDataSet)mChart.getData().getDataSetByIndex(0);
+            set1 = (LineDataSet) mChart.getData().getDataSetByIndex(0);
             set1.setValues(yVals);
             mChart.getData().notifyDataChanged();
             mChart.notifyDataSetChanged();
@@ -145,50 +145,47 @@ public class StockDetailsActivity extends AppCompatActivity implements LoaderMan
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(this,
-                Contract.Quote.URI,
-                Contract.Quote.QUOTE_COLUMNS,
-                Contract.Quote.COLUMN_SYMBOL + " = ?",
-                new String[]{getIntent().getStringExtra("symbol")},
-                Contract.Quote.COLUMN_SYMBOL);
+        if (stockUri != null) {
+            return new CursorLoader(
+                    this,
+                    stockUri,
+                    Contract.Quote.QUOTE_COLUMNS,
+                    null,
+                    null,
+                    null
+            );
+        }
+        return null;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         data.moveToFirst();
-        String history = data.getString(
-                data.getColumnIndexOrThrow(Contract.Quote.COLUMN_HISTORY)
-        );
+        String history = data.getString(Contract.Quote.POSITION_HISTORY);
 
 
         CSVReader csvReader = new CSVReader(new StringReader(history), ',');
         //Set column mapping strategy
-        List<LineChartModel> histPriceModelList = new ArrayList<>();
+        List<LineChartModel> lineChartList = new ArrayList<>();
 
         // read line by line
         String[] record = null;
 
         try {
             while ((record = csvReader.readNext()) != null) {
-                LineChartModel histPriceModel = new LineChartModel();
-                histPriceModel.setHistory(Float.valueOf(record[0]));
-                histPriceModel.setPrice(Float.valueOf(record[1]));
-                histPriceModelList.add(histPriceModel);
+                LineChartModel lineChartModel = new LineChartModel();
+                lineChartModel.setHistory(Float.valueOf(record[0]));
+                lineChartModel.setPrice(Float.valueOf(record[1]));
+                lineChartList.add(lineChartModel);
             }
             csvReader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        System.out.print(histPriceModelList);
-
-        Log.e("llllist", histPriceModelList.toString());
-
-
-        // finally show chart :)
         if (!getDataOnce)
-            initChart(histPriceModelList);
+            initChart(lineChartList);
 
         getDataOnce = true;
 

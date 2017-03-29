@@ -1,10 +1,12 @@
 package com.udacity.stockhawk.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -20,10 +22,15 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.udacity.stockhawk.MessageEvent;
 import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.data.PrefUtils;
 import com.udacity.stockhawk.sync.QuoteSyncJob;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,9 +51,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onClick(String symbol) {
-        Timber.d("Symbol clicked: %s", symbol);
+        Uri stockUri = Contract.Quote.makeUriForStock(symbol);
         Intent intent = new Intent(this, StockDetailsActivity.class);
-        intent.putExtra("symbol", symbol);
+        intent.setData(stockUri);
         startActivity(intent);
     }
 
@@ -124,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             if (networkUp()) {
                 swipeRefreshLayout.setRefreshing(true);
             } else {
-                String message = getString(R.string.toast_stock_added_no_connectivity, symbol);
+                String message = getString(R.string.toast_stock_added_no_connectivity) + "" + symbol;
                 Toast.makeText(this, message, Toast.LENGTH_LONG).show();
             }
 
@@ -176,6 +183,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         return true;
     }
 
+    @SuppressLint("StringFormatInvalid")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -192,6 +200,25 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        Toast.makeText(this, "" + event.mMessage, Toast.LENGTH_SHORT).show();
+        swipeRefreshLayout.setRefreshing(false);
+
     }
 
 }

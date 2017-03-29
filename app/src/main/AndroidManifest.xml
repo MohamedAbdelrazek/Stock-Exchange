@@ -39,7 +39,9 @@
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <activity
-            android:name=".ui.StockDetailsActivity" />
+            android:name=".ui.StockDetailsActivity"
+            android:label="@string/title_activity_detail"
+            />
     </application>
 
 </manifest>

@@ -9,8 +9,12 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import com.udacity.stockhawk.MessageEvent;
+import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.data.PrefUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,6 +51,16 @@ public final class QuoteSyncJob {
         Calendar from = Calendar.getInstance();
         Calendar to = Calendar.getInstance();
         from.add(Calendar.YEAR, -YEARS_OF_HISTORY);
+        String stockSymbol="";
+        Stock stock;
+        StockQuote quote;
+        float price;
+        float change;
+        float percentChange;
+        String stockName;
+
+        List<HistoricalQuote> history ;
+
 
         try {
 
@@ -69,22 +83,21 @@ public final class QuoteSyncJob {
             ArrayList<ContentValues> quoteCVs = new ArrayList<>();
 
             while (iterator.hasNext()) {
-                String symbol = iterator.next();
+                 stockSymbol = iterator.next();
 
 
-                Stock stock = quotes.get(symbol);
-                StockQuote quote = stock.getQuote();
+                  stock = quotes.get(stockSymbol);
+                  quote = stock.getQuote();
 
 
-
-                float price = quote.getPrice().floatValue();
-                float change = quote.getChange().floatValue();
-                float percentChange = quote.getChangeInPercent().floatValue();
-               String stockName = stock.getName();
+                  price = quote.getPrice().floatValue();
+                  change = quote.getChange().floatValue();
+                  percentChange = quote.getChangeInPercent().floatValue();
+                  stockName = stock.getName();
 
                 // WARNING! Don't request historical data for a stock that doesn't exist!
                 // The request will hang forever X_x
-                List<HistoricalQuote> history = stock.getHistory(from, to, Interval.WEEKLY);
+                 history = stock.getHistory(from, to, Interval.WEEKLY);
 
                 StringBuilder historyBuilder = new StringBuilder();
 
@@ -96,7 +109,7 @@ public final class QuoteSyncJob {
                 }
 
                 ContentValues quoteCV = new ContentValues();
-                quoteCV.put(Contract.Quote.COLUMN_SYMBOL, symbol);
+                quoteCV.put(Contract.Quote.COLUMN_SYMBOL, stockSymbol);
                 quoteCV.put(Contract.Quote.COLUMN_PRICE, price);
                 quoteCV.put(Contract.Quote.COLUMN_PERCENTAGE_CHANGE, percentChange);
                 quoteCV.put(Contract.Quote.COLUMN_ABSOLUTE_CHANGE, change);
@@ -117,7 +130,11 @@ public final class QuoteSyncJob {
             Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED);
             context.sendBroadcast(dataUpdatedIntent);
 
-        } catch (IOException exception) {
+        }
+        catch (NullPointerException e) {
+            EventBus.getDefault().post(new MessageEvent(context.getString(R.string.no_match), stockSymbol));
+        }
+        catch (IOException exception) {
             Timber.e(exception, "Error fetching stock quotes");
         }
     }

@@ -12,14 +12,12 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.widget.RemoteViews;
+
 import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.sync.QuoteSyncJob;
 import com.udacity.stockhawk.ui.MainActivity;
 import com.udacity.stockhawk.ui.StockDetailsActivity;
 
-/**
- * Created by Gurupad Mamadapur on 1/1/2017.
- */
 
 public class StockWidgetProvider extends AppWidgetProvider {
     @SuppressLint("PrivateResource")

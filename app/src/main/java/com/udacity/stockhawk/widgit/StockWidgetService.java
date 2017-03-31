@@ -17,9 +17,6 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 
-/**
- * Created by Gurupad Mamadapur on 1/1/2017.
- */
 
 public class StockWidgetService extends RemoteViewsService {
     @Override

@@ -51,7 +51,7 @@ public final class QuoteSyncJob {
         Calendar from = Calendar.getInstance();
         Calendar to = Calendar.getInstance();
         from.add(Calendar.YEAR, -YEARS_OF_HISTORY);
-        String stockSymbol="";
+        String stockSymbol = "";
         Stock stock;
         StockQuote quote;
         float price;
@@ -59,7 +59,7 @@ public final class QuoteSyncJob {
         float percentChange;
         String stockName;
 
-        List<HistoricalQuote> history ;
+        List<HistoricalQuote> history;
 
 
         try {
@@ -83,21 +83,21 @@ public final class QuoteSyncJob {
             ArrayList<ContentValues> quoteCVs = new ArrayList<>();
 
             while (iterator.hasNext()) {
-                 stockSymbol = iterator.next();
+                stockSymbol = iterator.next();
 
 
-                  stock = quotes.get(stockSymbol);
-                  quote = stock.getQuote();
+                stock = quotes.get(stockSymbol);
+                quote = stock.getQuote();
 
 
-                  price = quote.getPrice().floatValue();
-                  change = quote.getChange().floatValue();
-                  percentChange = quote.getChangeInPercent().floatValue();
-                  stockName = stock.getName();
+                price = quote.getPrice().floatValue();
+                change = quote.getChange().floatValue();
+                percentChange = quote.getChangeInPercent().floatValue();
+                stockName = stock.getName();
 
                 // WARNING! Don't request historical data for a stock that doesn't exist!
                 // The request will hang forever X_x
-                 history = stock.getHistory(from, to, Interval.WEEKLY);
+                history = stock.getHistory(from, to, Interval.WEEKLY);
 
                 StringBuilder historyBuilder = new StringBuilder();
 
@@ -126,15 +126,11 @@ public final class QuoteSyncJob {
                     .bulkInsert(
                             Contract.Quote.URI,
                             quoteCVs.toArray(new ContentValues[quoteCVs.size()]));
+            updateWidget(context);
 
-            Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED);
-            context.sendBroadcast(dataUpdatedIntent);
-
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             EventBus.getDefault().post(new MessageEvent(context.getString(R.string.no_match), stockSymbol));
-        }
-        catch (IOException exception) {
+        } catch (IOException exception) {
             Timber.e(exception, "Error fetching stock quotes");
         }
     }
@@ -190,4 +186,9 @@ public final class QuoteSyncJob {
     }
 
 
+    public static void updateWidget(Context context) {
+        Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED);
+        context.sendBroadcast(dataUpdatedIntent);
+    }
 }
+

@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 String symbol = adapter.getSymbolAtPosition(viewHolder.getAdapterPosition());
                 int stockSize = PrefUtils.removeStock(MainActivity.this, symbol);
                 int x = getContentResolver().delete(Contract.Quote.makeUriForStock(symbol), null, null);
-                
+
                 QuoteSyncJob.updateWidget(MainActivity.this);
                 if (stockSize == 0) {
                     adapter.setCursor(null);
